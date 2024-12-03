@@ -1,0 +1,65 @@
+name: my-content-engine
+
+services:
+  jaws_db:
+    image: bitnami/postgresql:latest
+    container_name: jaws_db
+    environment:
+      - POSTGRESQL_USERNAME=myuser
+      - POSTGRESQL_PASSWORD=mypassword
+      - POSTGRESQL_DATABASE=jaws_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - jaws_db_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=Pa22word
+      - MINIO_DOMAIN=storage
+      - MINIO_REGION_NAME=us-east-1
+    ports:
+      - "9000:9000"
+      - "9007:9001"
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes:
+      - miniodata:/data
+
+  minio-setup:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=Pa22word
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for MinIO to start...' &&
+      /bin/sleep 10 &&
+      mc alias set minio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
+      mc mb minio/my-content-engine &&
+      echo 'Buckets created and data loaded.'"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ["./wait-for-it.sh", "jaws_db:5432", "--", "/app/entrypoint.sh"]
+    image: ghcr.io/joshyorko/content-engine:latest
+
+
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - jaws_db
+      - minio
+
+
+volumes:
+  jaws_db_data:
+  miniodata:
