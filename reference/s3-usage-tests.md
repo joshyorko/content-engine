@@ -14,18 +14,20 @@ from cfehome.env import config
 AWS_ACCESS_KEY_ID=config("AWS_ACCESS_KEY_ID", default=None)
 AWS_SECRET_ACCESS_KEY=config("AWS_SECRET_ACCESS_KEY", default=None)
 AWS_BUCKET_NAME=config("AWS_BUCKET_NAME", default=None)
+AWS_ENDPOINT_URL=config("AWS_ENDPOINT_URL", default=None)
 
 
 client = s3.S3Client(
         aws_access_key_id=AWS_ACCESS_KEY_ID,
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         default_bucket_name=AWS_BUCKET_NAME,
+        endpoint_url=AWS_ENDPOINT_URL,
     ).client
 
 paginator = client.get_paginator("list_objects_v2")
 pag_gen = paginator.paginate(
         Bucket=AWS_BUCKET_NAME,
-        Prefix="projects/10/items/46/"
+        Prefix="projects/"
 )
 for page in pag_gen:
     #print(page.get('Contents'))

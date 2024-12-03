@@ -22,6 +22,9 @@ from .models import Item
 AWS_ACCESS_KEY_ID=config("AWS_ACCESS_KEY_ID", default=None)
 AWS_SECRET_ACCESS_KEY=config("AWS_SECRET_ACCESS_KEY", default=None)
 AWS_BUCKET_NAME=config("AWS_BUCKET_NAME", default=None)
+AWS_ENDPOINT_URL=config("AWS_ENDPOINT_URL", default=None)
+
+
 
 
 def filename_to_s3_filename(fname):
@@ -54,10 +57,11 @@ def item_upload_view(request, id=None):
             """
             return JsonResponse({"url": None})
         client = s3.S3Client(
-            aws_access_key_id=AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-            default_bucket_name=AWS_BUCKET_NAME,
-        ).client
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        default_bucket_name=AWS_BUCKET_NAME,
+        endpoint_url=AWS_ENDPOINT_URL,
+    ).client
         prefix = instance.get_prefix()
         key = f"{prefix}{name}"
         url = client.generate_presigned_url('put_object', Params={"Bucket": AWS_BUCKET_NAME, "Key": key}, ExpiresIn=3600)
@@ -81,10 +85,11 @@ def item_file_delete_view(request, id=None, name=None):
     # modal for a confirm file name
     prefix = instance.get_prefix()
     client = s3.S3Client(
-            aws_access_key_id=AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-            default_bucket_name=AWS_BUCKET_NAME,
-        ).client
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        default_bucket_name=AWS_BUCKET_NAME,
+        endpoint_url=AWS_ENDPOINT_URL,
+    ).client
     prefix = instance.get_prefix()
     key = f"{prefix}{name}"
     if key.endswith("/"):
@@ -102,11 +107,13 @@ def item_files_view(request, id=None):
         return redirect(detail_url)
     template_name = 'items/snippets/object-table.html'
     prefix = instance.get_prefix()
+    print(prefix)
     client = s3.S3Client(
-            aws_access_key_id=AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-            default_bucket_name=AWS_BUCKET_NAME,
-        ).client
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        default_bucket_name=AWS_BUCKET_NAME,
+        endpoint_url=AWS_ENDPOINT_URL,
+    ).client
 
     paginator = client.get_paginator("list_objects_v2")
     pag_gen = paginator.paginate(

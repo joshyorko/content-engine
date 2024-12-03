@@ -13,6 +13,7 @@ class S3Client:
     """
     aws_access_key_id: str
     aws_secret_access_key: str
+    endpoint_url: str 
     default_bucket_name: str
 
     def __post_init__(self):
@@ -26,6 +27,7 @@ class S3Client:
             's3',
             aws_access_key_id=self.aws_access_key_id,
             aws_secret_access_key=self.aws_secret_access_key,
+            endpoint_url=self.endpoint_url,
             config=Config(signature_version='s3v4')
         )
 
