@@ -23,7 +23,14 @@ services:
     image: ghcr.io/joshyorko/content-engine:latest
 
     environment:
-     - .env
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DATABASE_URL=${DATABASE_URL}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}
+      - AWS_REGION=${AWS_REGION}  # Add region if needed
 
     volumes:
       - .:/usr/src/app
@@ -32,7 +39,35 @@ services:
     depends_on:
       - jaws_db
 
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ACCESS_KEY: admin
+      MINIO_SECRET_KEY: Pa22word22
+    command: ["server", "--console-address", ":9001", "/data"]
 
+
+  minio-setup:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    environment:
+      MINIO_ACCESS_KEY: admin
+      MINIO_SECRET_KEY: Pa22word22
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for Minio to start...' &&
+      /bin/sleep 10 &&
+      mc alias set minio http://minio:9000 $$MINIO_ACCESS_KEY $$MINIO_SECRET_KEY &&
+      mc mb minio/my-content-engine &&
+      echo 'Minio setup complete'"
 
 volumes:
   jaws_db_data:
+  minio-data:

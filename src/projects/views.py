@@ -57,11 +57,8 @@ def project_delete_view(request, handle=None):
     return render(request, "projects/delete.html", {"instance": instance})
 
 
-# @project_required
 @login_required
 def project_create_view(request):
-    if not request.project.is_activated:
-        return render(request, 'projects/create.html', {})
     form = forms.ProjectCreateForm(request.POST or None)
     if form.is_valid():
         project_obj = form.save(commit=False)
