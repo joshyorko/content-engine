@@ -1,4 +1,6 @@
 {
     "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest",
+    "postCreateCommand": "cowsay -t 'This development environment Kicks Ass!'",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
     "postCreateCommand": "cowsay -t 'This development environment Kicks Ass!'"
 }
