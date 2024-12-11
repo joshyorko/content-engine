@@ -1,5 +1,4 @@
 {
-    "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest",
-    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+    "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest"
 }
 
