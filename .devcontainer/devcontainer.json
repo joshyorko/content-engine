@@ -1,4 +1,10 @@
 {
-    "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest"
+  "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest",
+  "features": {
+    "ghcr.io/microsoft/k3s-on-host": {
+      "k3sVersion": "latest",
+      "criDockerd": "true",
+      "cluster_enabled": "true"
+    }
+  }
 }
-
