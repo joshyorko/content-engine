@@ -1,16 +1,4 @@
 {
     "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest",
-    "postCreateCommand": "cowsay -t 'This development environment Kicks Ass!'",
-    "features": {
-        "ghcr.io/devcontainers/features/git-lfs:1": {
-            "version": "latest"
-        }
-    },
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-azuretools.vscode-docker"
-            ]
-        }
-    }
+    "postCreateCommand": "cowsay -t 'This development environment Kicks Ass!'"
 }
