@@ -1,10 +1,5 @@
 {
     "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest",
-    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-    "features": {
-        "ghcr.io/devcontainers/features/git-lfs:1": {
-            "version": "latest"
-        }
-    }
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
 }
 
