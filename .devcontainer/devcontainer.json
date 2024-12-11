@@ -1,5 +1,9 @@
 {
     "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest",
-    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-    "postCreateCommand": "cowsay -t 'This development environment Kicks Ass!'"
+    "postCreateCommand": "cowsay -t 'This development environment Kicks Ass!'",
+    "features": {
+        "ghcr.io/devcontainers/features/git-lfs:1": {
+            "version": "latest"
+        }
+    }
 }
