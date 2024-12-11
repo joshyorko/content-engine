@@ -22,7 +22,7 @@ from .models import Item
 AWS_ACCESS_KEY_ID=config("AWS_ACCESS_KEY_ID", default=None)
 AWS_SECRET_ACCESS_KEY=config("AWS_SECRET_ACCESS_KEY", default=None)
 AWS_BUCKET_NAME=config("AWS_BUCKET_NAME", default=None)
-AWS_ENDPOINT_URL=config("AWS_ENDPOINT_URL", default=None)
+AWS_ENDPOINT_URL=config("AWS_ENDPOINT_URL", default="http://minio:9000")
 
 
 
