@@ -1,5 +1,13 @@
 {
     "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest",
+    "postCreateCommand": "cowsay -t 'This development environment Kicks Ass!'",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/conda:1": {},
+        "ghcr.io/devcontainers/features/git-lfs:1": {
+            "version": "latest"
+        }
+    },
     "customizations": {
         "vscode": {
             "extensions": [
