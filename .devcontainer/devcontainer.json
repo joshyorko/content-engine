@@ -1,10 +1,36 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
-  "image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest",
-  "features": {
-    "ghcr.io/microsoft/k3s-on-host": {
-      "k3sVersion": "latest",
-      "criDockerd": "true",
-      "cluster_enabled": "true"
-    }
-  }
+	"name": "content-engine",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "ghcr.io/joshyorko/joshyorko_devcontainer:latest",
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {},
+			"extensions": [
+                "ms-azuretools.vscode-docker",
+				"streetsidesoftware.code-spell-checker"
+			]
+		}
+	}
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [9000],
+
+	// Use 'portsAttributes' to set default properties for specific forwarded ports. 
+	// More info: https://containers.dev/implementors/json_reference/#port-attributes
+	
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	//"postCreateCommand": "cowsay -t 'This development environment Kicks Ass!'"
+
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
 }
