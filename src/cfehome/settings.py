@@ -29,6 +29,10 @@ DEBUG = config("DJANGO_DEBUG", default=False, cast=bool) # twingate
 
 ALLOWED_HOSTS = ["*"]
 
+# Authentication settings
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
 
 # Application definition
 

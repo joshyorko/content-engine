@@ -4,12 +4,14 @@ import mimetypes
 from cfehome.env import config
 # from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required as login_required
-from django.http import QueryDict, HttpResponse, JsonResponse
+from django.http import QueryDict, HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse 
 from projects import cache as projects_cache
 from projects.decorators import project_required
 from django.utils.text import slugify
+from django.core.cache import cache
+from django.views.decorators.cache import cache_control
 
 from django_htmx.http import HttpResponseClientRedirect
 
@@ -122,7 +124,6 @@ def item_files_view(request, id=None):
     )
     object_list = []
     for page in pag_gen:
-        #print(page.get('Contents'))
         for c in page.get('Contents', []):
             key = c.get('Key')
             size = c.get('Size')
@@ -134,29 +135,17 @@ def item_files_view(request, id=None):
                 _type = mimetypes.guess_type(name)[0]
             except:
                 pass
-            url = client.generate_presigned_url(
-                'get_object',
-                Params = {
-                    'Bucket': AWS_BUCKET_NAME,
-                    'Key': key,
-                },
-                ExpiresIn=3600,
-            )
-            download_url = client.generate_presigned_url(
-                'get_object',
-                Params = {
-                    'Bucket': AWS_BUCKET_NAME,
-                    'Key': key,
-                    'ResponseContentDisposition': 'attachment'
-                },
-                ExpiresIn=3600,
-            )
-            is_image = 'image' in str(_type)
             
+            is_image = 'image' in str(_type)
             updated = c.get('LastModified')
+            
+            # Generate Django URLs instead of S3 presigned URLs
+            url = reverse('items:view_file', kwargs={'id': instance.id, 'filename': name})
+            download_url = reverse('items:download_file', kwargs={'id': instance.id, 'filename': name})
+            
             data = {
                 'key': key,
-                'name': pathlib.Path(key).name,
+                'name': name,
                 'is_image': is_image,
                 'url': url,
                 'download_url': download_url,
@@ -279,3 +268,54 @@ def item_create_view(request):
         "action_url": action_create_url
     }
     return render(request, template_name, context)
+
+
+@project_required
+@login_required
+@cache_control(max_age=3600)  # Cache for 1 hour
+def serve_s3_file(request, id=None, filename=None, as_attachment=False):
+    instance = get_object_or_404(Item, id=id, project=request.project)
+    
+    # Create S3 client
+    client = s3.S3Client(
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        default_bucket_name=AWS_BUCKET_NAME,
+        endpoint_url=AWS_ENDPOINT_URL,
+    ).client
+
+    # Build the key
+    prefix = instance.get_prefix()
+    key = f"{prefix}{filename}"
+    if key.endswith("/"):
+        key = key[:-1]
+    
+    try:
+        # Get the S3 object
+        s3_object = client.get_object(Bucket=AWS_BUCKET_NAME, Key=key)
+        
+        # Get content type
+        content_type = s3_object['ContentType']
+        if not content_type:
+            content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+        
+        # Create response
+        response = StreamingHttpResponse(
+            s3_object['Body'].iter_chunks(chunk_size=8192),
+            content_type=content_type
+        )
+        
+        if as_attachment:
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        else:
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            
+        # Add caching headers
+        response['Cache-Control'] = 'max-age=3600'  # 1 hour
+        
+        return response
+        
+    except client.exceptions.NoSuchKey:
+        raise Http404("File not found")
+    except Exception as e:
+        return HttpResponse(f"Error accessing file: {str(e)}", status=500)
