@@ -1,20 +1,122 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
+<div class="py-8">
+    <div class="max-w-screen-xl mx-auto px-4">
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ instance.title }}</h1>
+                {% if request.project == instance %}
+                <span class="inline-flex items-center bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full dark:bg-green-900 dark:text-green-300">
+                    <span class="w-2 h-2 mr-1.5 bg-green-500 rounded-full"></span>
+                    Active Project
+                </span>
+                {% else %}
+                <a href="{{ instance.get_activation_url }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                    Activate Project
+                </a>
+                {% endif %}
+            </div>
+            {% if instance.description %}
+            <p class="text-gray-600 dark:text-gray-400">{{ instance.description }}</p>
+            {% endif %}
+        </div>
 
-<h1>{{ instance.title }}</h1>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Project Management Column -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Project Management</h2>
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div>
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-500">{{ field.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        <button type="submit" class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                            Save Changes
+                        </button>
+                    </form>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <a href="{{ instance.get_delete_url }}" class="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 focus:ring-4 focus:ring-red-300 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800">
+                            Delete Project
+                        </a>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Content Items Column -->
+            <div class="lg:col-span-2">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Content Items</h2>
+                        <a href="{{ items_create_url }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            New Item
+                        </a>
+                    </div>
 
-{% if request.project == instance %}
-    {% include 'projects/snippets/list.html' with object_list=items_qs %}
-
-    {% else %}
-    <div>
-        <a href="{{ instance.get_activation_url }}">Activate Project</a>
+                    {% if items_qs %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Title</th>
+                                    <th scope="col" class="px-6 py-3">Status</th>
+                                    <th scope="col" class="px-6 py-3">Last Modified</th>
+                                    <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items_qs %}
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {{ item.title }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                            {% if item.status == 'draft' %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+                                            {% elif item.status == 'in_progress' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300
+                                            {% elif item.status == 'review' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300
+                                            {% else %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300{% endif %}">
+                                            {{ item.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {{ item.updated|date:"M d, Y" }}
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <a href="{{ item.get_absolute_url }}" class="font-medium text-blue-600 hover:underline dark:text-blue-500">View</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8">
+                        <p class="text-gray-500 dark:text-gray-400 mb-4">No content items yet</p>
+                        <a href="{{ items_create_url }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Create First Item
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
-{% endif %}
-
-{% include 'projects/snippets/form.html' with form=form btn_label="Save" %}
-
-{% endblock content %}
+</div>
+{% endblock %}

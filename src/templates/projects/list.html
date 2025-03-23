@@ -1,10 +1,66 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
+<div class="py-8">
+    <div class="max-w-screen-xl mx-auto px-4">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Your Projects</h1>
+            <a href="{% url 'projects:create' %}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                New Project
+            </a>
+        </div>
 
-
-
-{% include 'projects/snippets/list.html' with object_list=object_list %}
-
-{% endblock content %}
+        {% if object_list %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for project in object_list %}
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{{ project.title }}</h3>
+                    {% if project.description %}
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">{{ project.description|truncatewords:30 }}</p>
+                    {% endif %}
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            {% if project.is_activated %}
+                            <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
+                                <span class="w-2 h-2 mr-1 bg-green-500 rounded-full"></span>
+                                Active
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="flex space-x-2">
+                            {% if not project.is_activated %}
+                            <a href="{{ project.get_activation_url }}" class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">
+                                Activate
+                            </a>
+                            {% endif %}
+                            <a href="{{ project.get_absolute_url }}" class="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+                                Details
+                                <svg class="w-3 h-3 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">No projects yet</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">Create your first project to get started</p>
+            <a href="{% url 'projects:create' %}" class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Create Project
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
