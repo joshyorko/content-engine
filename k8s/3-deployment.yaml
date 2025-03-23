@@ -16,7 +16,7 @@ spec:
       containers:
         - name: my-container
           # docker pull jmitchel3/content-engine:latest
-          image: jmitchel3/content-engine:latest
+          image: ghcr.io/joshyorko/content-engine:latest
           env:
             - name: PORT
               value: "8080"
