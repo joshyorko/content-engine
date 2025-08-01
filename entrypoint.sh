@@ -13,5 +13,5 @@ python manage.py collectstatic --noinput
 
 # Start the Django application using gunicorn
 echo "Starting the Django application..."
-exec gunicorn -c /app/gunicorn.conf.py yorko-home.wsgi:application
+exec gunicorn -c /app/gunicorn.conf.py cfehome.wsgi:application
 
