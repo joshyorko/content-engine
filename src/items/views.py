@@ -25,6 +25,7 @@ AWS_ACCESS_KEY_ID=config("AWS_ACCESS_KEY_ID", default=None)
 AWS_SECRET_ACCESS_KEY=config("AWS_SECRET_ACCESS_KEY", default=None)
 AWS_BUCKET_NAME=config("AWS_BUCKET_NAME", default=None)
 AWS_ENDPOINT_URL=config("AWS_ENDPOINT_URL", default="http://minio:9000")
+AWS_PUBLIC_ENDPOINT_URL=config("AWS_PUBLIC_ENDPOINT_URL", default=None)
 
 
 
@@ -58,16 +59,27 @@ def item_upload_view(request, id=None):
             Invalid name, alert user
             """
             return JsonResponse({"url": None})
-        client = s3.S3Client(
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        default_bucket_name=AWS_BUCKET_NAME,
-        endpoint_url=AWS_ENDPOINT_URL,
-    ).client
-        prefix = instance.get_prefix()
-        key = f"{prefix}{name}"
-        url = client.generate_presigned_url('put_object', Params={"Bucket": AWS_BUCKET_NAME, "Key": key}, ExpiresIn=3600)
-        return JsonResponse({"url": url, 'filename': name})
+        
+        # Validate S3 configuration
+        if not all([AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME, AWS_ENDPOINT_URL]):
+            print(f"S3 Config Error in upload - Access Key: {AWS_ACCESS_KEY_ID is not None}, Secret Key: {AWS_SECRET_ACCESS_KEY is not None}, Bucket: {AWS_BUCKET_NAME is not None}, Endpoint: {AWS_ENDPOINT_URL is not None}")
+            return JsonResponse({"url": None, "error": "S3 configuration error"})
+        
+        try:
+            s3_client = s3.S3Client(
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                default_bucket_name=AWS_BUCKET_NAME,
+                endpoint_url=AWS_ENDPOINT_URL,
+                public_endpoint_url=AWS_PUBLIC_ENDPOINT_URL,
+            )
+            prefix = instance.get_prefix()
+            key = f"{prefix}{name}"
+            url = s3_client.generate_presigned_url_with_public_endpoint('put_object', {"Bucket": AWS_BUCKET_NAME, "Key": key}, 3600)
+            return JsonResponse({"url": url, 'filename': name})
+        except Exception as e:
+            print(f"S3 Upload presign error: {e}")
+            return JsonResponse({"url": None, "error": str(e)})
     return render(request, template_name, 
                     {
                      "instance": instance}
@@ -91,6 +103,7 @@ def item_file_delete_view(request, id=None, name=None):
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         default_bucket_name=AWS_BUCKET_NAME,
         endpoint_url=AWS_ENDPOINT_URL,
+        public_endpoint_url=AWS_PUBLIC_ENDPOINT_URL,
     ).client
     prefix = instance.get_prefix()
     key = f"{prefix}{name}"
@@ -110,50 +123,65 @@ def item_files_view(request, id=None):
     template_name = 'items/snippets/object-table.html'
     prefix = instance.get_prefix()
     print(prefix)
-    client = s3.S3Client(
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        default_bucket_name=AWS_BUCKET_NAME,
-        endpoint_url=AWS_ENDPOINT_URL,
-    ).client
+    
+    # Validate S3 configuration
+    if not all([AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME, AWS_ENDPOINT_URL]):
+        print(f"S3 Config Error - Access Key: {AWS_ACCESS_KEY_ID is not None}, Secret Key: {AWS_SECRET_ACCESS_KEY is not None}, Bucket: {AWS_BUCKET_NAME is not None}, Endpoint: {AWS_ENDPOINT_URL is not None}")
+        return HttpResponse("S3 configuration error. Please check environment variables.", status=500)
+    
+    try:
+        client = s3.S3Client(
+            aws_access_key_id=AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+            default_bucket_name=AWS_BUCKET_NAME,
+            endpoint_url=AWS_ENDPOINT_URL,
+            public_endpoint_url=AWS_PUBLIC_ENDPOINT_URL,
+        ).client
+    except Exception as e:
+        print(f"S3 Client creation error: {e}")
+        return HttpResponse(f"S3 client error: {str(e)}", status=500)
 
-    paginator = client.get_paginator("list_objects_v2")
-    pag_gen = paginator.paginate(
-            Bucket=AWS_BUCKET_NAME,
-            Prefix=prefix
-    )
-    object_list = []
-    for page in pag_gen:
-        for c in page.get('Contents', []):
-            key = c.get('Key')
-            size = c.get('Size')
-            if size == 0:
-                continue
-            name = pathlib.Path(key).name
-            _type = None
-            try:
-                _type = mimetypes.guess_type(name)[0]
-            except:
-                pass
-            
-            is_image = 'image' in str(_type)
-            updated = c.get('LastModified')
-            
-            # Generate Django URLs instead of S3 presigned URLs
-            url = reverse('items:view_file', kwargs={'id': instance.id, 'filename': name})
-            download_url = reverse('items:download_file', kwargs={'id': instance.id, 'filename': name})
-            
-            data = {
-                'key': key,
-                'name': name,
-                'is_image': is_image,
-                'url': url,
-                'download_url': download_url,
-                'type': _type,
-                'size': size,
-                'updated': updated,
-            }
-            object_list.append(data)
+    try:
+        paginator = client.get_paginator("list_objects_v2")
+        pag_gen = paginator.paginate(
+                Bucket=AWS_BUCKET_NAME,
+                Prefix=prefix
+        )
+        object_list = []
+        for page in pag_gen:
+            for c in page.get('Contents', []):
+                key = c.get('Key')
+                size = c.get('Size')
+                if size == 0:
+                    continue
+                name = pathlib.Path(key).name
+                _type = None
+                try:
+                    _type = mimetypes.guess_type(name)[0]
+                except:
+                    pass
+                
+                is_image = 'image' in str(_type)
+                updated = c.get('LastModified')
+                
+                # Generate Django URLs instead of S3 presigned URLs
+                url = reverse('items:view_file', kwargs={'id': instance.id, 'filename': name})
+                download_url = reverse('items:download_file', kwargs={'id': instance.id, 'filename': name})
+                
+                data = {
+                    'key': key,
+                    'name': name,
+                    'is_image': is_image,
+                    'url': url,
+                    'download_url': download_url,
+                    'type': _type,
+                    'size': size,
+                    'updated': updated,
+                }
+                object_list.append(data)
+    except Exception as e:
+        print(f"S3 List objects error: {e}")
+        return HttpResponse(f"S3 list error: {str(e)}", status=500)
     return render(request, template_name, 
                     {'object_list': object_list,
                      "instance": instance}

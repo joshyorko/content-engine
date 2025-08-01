@@ -12,6 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - jaws_db_data:/var/lib/postgresql/data
+    networks:
+      - content-engine-net
 
 
 
@@ -30,6 +32,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
       - AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}
+      - AWS_PUBLIC_ENDPOINT_URL=${AWS_PUBLIC_ENDPOINT_URL}
       - AWS_REGION=${AWS_REGION}  # Add region if needed
 
     volumes:
@@ -38,6 +41,8 @@ services:
       - "8000:8000"
     depends_on:
       - jaws_db
+    networks:
+      - content-engine-net
 
   minio:
     image: minio/minio:latest
@@ -48,9 +53,11 @@ services:
     volumes:
       - minio-data:/data
     environment:
-      MINIO_ACCESS_KEY: admin
-      MINIO_SECRET_KEY: Pa22word22
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: Pa22word22
     command: ["server", "--console-address", ":9001", "/data"]
+    networks:
+      - content-engine-net
 #
 #
   minio-setup:
@@ -58,16 +65,22 @@ services:
     depends_on:
       - minio
     environment:
-      MINIO_ACCESS_KEY: admin
-      MINIO_SECRET_KEY: Pa22word22
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: Pa22word22
     entrypoint: >
       /bin/sh -c "
       echo 'Waiting for Minio to start...' &&
       /bin/sleep 10 &&
-      mc alias set minio http://minio:9000 $$MINIO_ACCESS_KEY $$MINIO_SECRET_KEY &&
+      mc alias set minio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
       mc mb minio/my-content-engine &&
       echo 'Minio setup complete'"
+    networks:
+      - content-engine-net
 
 volumes:
   jaws_db_data:
   minio-data:
+
+networks:
+  content-engine-net:
+    driver: bridge
