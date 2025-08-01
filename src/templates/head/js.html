@@ -1,0 +1,42 @@
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const server = document.getElementById('server-messages');
+  const toasts = document.getElementById('toasts');
+  if (!server || !toasts) return;
+
+  const items = Array.from(server.querySelectorAll('li'));
+  if (items.length === 0) return;
+
+  // Expose live region for screen readers
+  toasts.classList.remove('sr-only');
+
+  items.forEach((li) => {
+    const level = (li.getAttribute('data-level') || li.className || '').trim();
+    let colorVar = 'var(--accent-cyan)'; // default for info
+    if (level.includes('success')) colorVar = 'var(--success)';
+    else if (level.includes('info')) colorVar = 'var(--accent-cyan)';
+    else if (level.includes('warning')) colorVar = 'var(--warn)';
+    else if (level.includes('error')) colorVar = 'var(--error)';
+
+    const toast = document.createElement('div');
+    toast.setAttribute('role', 'status');
+    toast.className = 'panel mb-2 px-3 py-2 text-sm shadow border-l-2';
+    toast.setAttribute('style', 'border-left-color: ' + colorVar + ';');
+
+    toast.textContent = li.textContent;
+
+    toasts.appendChild(toast);
+
+    const timeout = level.includes('error') ? 7000 : 4000;
+    window.setTimeout(() => {
+      if (!toast.parentElement) return;
+      toast.style.transition = 'opacity 150ms ease-out';
+      toast.style.opacity = '0';
+      window.setTimeout(() => toast.remove(), 160);
+    }, timeout);
+  });
+
+  // Remove server-rendered list to avoid duplicates post-enhancement
+  server.remove();
+});
+</script>

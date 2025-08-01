@@ -1,37 +1,51 @@
+# === Builder stage: install deps with cache ===
+FROM python:3.11-slim AS builder
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+# System deps needed to build wheels (add gcc/musl if your deps need compiling)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Only copy requirements to leverage Docker layer cache
+COPY src/requirements.txt /app/requirements.txt
+RUN pip wheel --wheel-dir /wheels -r /app/requirements.txt
+
+# === Runtime stage: minimal image with postgres client ===
 FROM python:3.11-slim
 
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
 
-# Set environment variables
-ENV PYTHONUNBUFFERED 1
+# Install PostgreSQL client only in final image
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    postgresql-client \
+  && rm -rf /var/lib/apt/lists/*
 
-# Install PostgreSQL client
-RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
-# Create and set the working directory
+# Create working dir
 RUN mkdir /app
 WORKDIR /app
 
-# Copy the requirements file to the working directory
-COPY ./src .
+# Copy wheels and install
+COPY --from=builder /wheels /wheels
+COPY src/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --no-index --find-links=/wheels -r /app/requirements.txt
 
-# Install the dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the entire project to the working directory
+# Copy application source and config
 COPY src/ /app/
-
-# Set PYTHONPATH
-ENV PYTHONPATH=/app
-
-# Expose port 8003 to the outside world
-EXPOSE 8000
-
-
-# Add a script to run the migrations and start the server
+COPY gunicorn.conf.py /app/gunicorn.conf.py
 COPY entrypoint.sh /app/
 COPY wait-for-it.sh /app/
 
-RUN chmod +x /app/wait-for-it.sh
-RUN chmod +x /app/entrypoint.sh
+# Expose port
+EXPOSE 8000
 
-# Run the entrypoint script
+# Make scripts executable
+RUN chmod +x /app/wait-for-it.sh && chmod +x /app/entrypoint.sh
+
+# Entrypoint
 CMD ["/app/entrypoint.sh"]

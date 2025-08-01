@@ -1,176 +1,162 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="bg-white dark:bg-gray-900">
-    <div class="py-8 px-4 mx-auto max-w-screen-xl text-center lg:py-16 lg:px-12">
-        {% if messages %}
-        <div class="mb-8">
-            {% for message in messages %}
-            <div class="p-4 mb-4 text-sm {% if message.tags == 'success' %}text-green-800 bg-green-50{% else %}text-blue-800 bg-blue-50{% endif %} rounded-lg dark:bg-gray-800 dark:text-blue-400" role="alert">
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+<section class="py-16 text-center">
+    {% if messages %}
+      <div class="mb-6">
+        {% for message in messages %}
+          <div class="inline-flex items-center rounded-lg px-4 py-2 text-sm ring-1 ring-inset
+                      {% if message.tags == 'success' %} bg-emerald-900/20 text-emerald-300 ring-emerald-400/30
+                      {% elif message.tags == 'error' %} bg-rose-900/20 text-rose-300 ring-rose-400/30
+                      {% else %} bg-slate-800/60 text-slate-300 ring-slate-700/60 {% endif %}"
+               role="status">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
 
-        <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">Content Engine</h1>
-        <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 lg:px-48 dark:text-gray-400">
-            Organize and manage your content projects effortlessly. Create, collaborate, and deliver content with confidence.
-        </p>
-        <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
-            {% if not request.user.is_authenticated %}
-            <a href="{% url 'login' %}" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
-                Sign In
-                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                </svg>
-            </a>
-            <a href="{% url 'signup' %}" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-                Create Account
-            </a>
-            {% else %}
-            <a href="{% url 'projects:list' %}" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
-                View Projects
-                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                </svg>
-            </a>
-            <a href="{% url 'projects:create' %}" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-                New Project
-            </a>
-            {% endif %}
+    <h1 class="neon-box mx-auto text-5xl">Content Engine</h1>
+    <p class="mt-6 text-lg text-secondary">A Django + S3 project template for content workflows.</p>
+    <div class="terminal mx-auto mt-8 max-w-xl">
+        <div class="header">
+            <span class="dot red"></span>
+            <span class="dot orange"></span>
+            <span class="dot green"></span>
         </div>
+        <pre>$ pip install content-engine\n$ python manage.py runserver\nWelcome to Content Engine!</pre>
+    </div>
+    <div class="mt-10 flex flex-col sm:flex-row sm:justify-center gap-3">
+      {% if not request.user.is_authenticated %}
+        <a href="{% url 'login' %}" class="btn">Sign In</a>
+        <a href="{% url 'signup' %}" class="btn">Create Account</a>
+      {% else %}
+        <a href="{% url 'projects:list' %}" class="btn">View Projects</a>
+        <a href="{% url 'projects:create' %}" class="btn">New Project</a>
+      {% endif %}
     </div>
 </section>
 
 {% if not request.user.is_authenticated %}
-<section class="bg-gray-50 dark:bg-gray-800 py-12">
-    <div class="max-w-screen-xl mx-auto px-4">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">Features & Navigation</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Authentication -->
-            <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
-                <div class="flex items-center mb-4">
-                    <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                    </svg>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Authentication</h3>
-                </div>
-                <ul class="space-y-3">
-                    <li>
-                        <a href="{% url 'login' %}" class="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
-                            <span class="mr-2">→</span>
-                            Sign In
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'signup' %}" class="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
-                            <span class="mr-2">→</span>
-                            Create Account
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Projects -->
-            <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
-                <div class="flex items-center mb-4">
-                    <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                    </svg>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Projects</h3>
-                </div>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">Create and manage your content projects with powerful tools and features.</p>
-                <div class="space-y-3">
-                    <a href="{% url 'projects:list' %}" class="block text-blue-600 hover:underline dark:text-blue-400">Browse Projects</a>
-                </div>
-            </div>
-
-            <!-- Items -->
-            <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
-                <div class="flex items-center mb-4">
-                    <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Content Items</h3>
-                </div>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">Organize and manage content items within your projects.</p>
-                <div class="space-y-3">
-                    <a href="{% url 'items:list' %}" class="block text-blue-600 hover:underline dark:text-blue-400">View Items</a>
-                </div>
-            </div>
+<section class="py-14 bg-slate-900">
+  <div class="max-w-7xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-white mb-8 text-center">Features & Navigation</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Authentication -->
+      <div class="card">
+        <div class="card-header">
+          <svg class="w-6 h-6 text-emerald-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+          </svg>
+          <h3 class="text-xl font-semibold text-white">Authentication</h3>
         </div>
+        <div class="card-body">
+          <ul class="space-y-3">
+            <li>
+              <a href="{% url 'login' %}" class="nav-link">→ Sign In</a>
+            </li>
+            <li>
+              <a href="{% url 'signup' %}" class="nav-link">→ Create Account</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Projects -->
+      <div class="card">
+        <div class="card-header">
+          <svg class="w-6 h-6 text-emerald-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          <h3 class="text-xl font-semibold text-white">Projects</h3>
+        </div>
+        <div class="card-body">
+          <p class="text-slate-400 mb-4">Create and manage your content projects with powerful tools and features.</p>
+          <a href="{% url 'projects:list' %}" class="nav-link">Browse Projects</a>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="card">
+        <div class="card-header">
+          <svg class="w-6 h-6 text-emerald-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3 class="text-xl font-semibold text-white">Content Items</h3>
+        </div>
+        <div class="card-body">
+          <p class="text-slate-400 mb-4">Organize and manage content items within your projects.</p>
+          <a href="{% url 'items:list' %}" class="nav-link">View Items</a>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 {% endif %}
 
 {% if request.user.is_authenticated %}
-<section class="bg-gray-50 dark:bg-gray-800 py-8">
-    <div class="max-w-screen-xl mx-auto px-4">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Recent Projects -->
-            <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Recent Projects</h3>
-                {% if project_list %}
-                <div class="space-y-2">
-                    {% for project in project_list|slice:":3" %}
-                    <a href="{{ project.get_absolute_url }}" class="block p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
-                        {{ project.title }}
-                    </a>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <p class="text-gray-600 dark:text-gray-400">No projects yet. Create your first project!</p>
-                {% endif %}
-            </div>
-            
-            <!-- Active Project -->
-            <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Active Project</h3>
-                {% if request.project.is_activated %}
-                <div class="mb-4">
-                    <p class="font-medium text-gray-900 dark:text-white">{{ request.project.title }}</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ request.project.description|truncatewords:20 }}</p>
-                </div>
-                <div class="space-y-2">
-                    <a href="{{ items_create_url }}" class="block p-3 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300">
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Add New Item
-                        </div>
-                    </a>
-                    <a href="{{ items_list_url }}" class="block p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
-                        View Items
-                    </a>
-                    <a href="{{ deactivate_project_url }}" class="block p-3 rounded-lg text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600">
-                        Deactivate Project
-                    </a>
-                </div>
-                {% else %}
-                <p class="text-gray-600 dark:text-gray-400">No active project. Select a project to get started.</p>
-                {% endif %}
-            </div>
-
-            <!-- Quick Links -->
-            <div class="bg-white rounded-lg shadow p-6 dark:bg-gray-700">
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Quick Links</h3>
-                <div class="space-y-2">
-                    <a href="{% url 'projects:create' %}" class="block p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
-                        Create New Project
-                    </a>
-                    <a href="{% url 'projects:list' %}" class="block p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
-                        View All Projects
-                    </a>
-                    <a href="{{ about_url }}" class="block p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
-                        About Content Engine
-                    </a>
-                </div>
-            </div>
+<section class="py-10 bg-slate-900">
+  <div class="max-w-7xl mx-auto px-4">
+    <h2 class="text-2xl font-bold text-white mb-6">Quick Actions</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Recent Projects -->
+      <div class="card">
+        <div class="card-body">
+          <h3 class="text-xl font-semibold text-white mb-2">Recent Projects</h3>
+          {% if project_list %}
+          <div class="space-y-2">
+            {% for project in project_list|slice:":3" %}
+              <a href="{{ project.get_absolute_url }}" class="block p-3 rounded-lg hover:bg-slate-800/60">
+                {{ project.title }}
+              </a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-slate-400">No projects yet. Create your first project!</p>
+          {% endif %}
         </div>
+      </div>
+
+      <!-- Active Project -->
+      <div class="card">
+        <div class="card-body">
+          <h3 class="text-xl font-semibold text-white mb-2">Active Project</h3>
+          {% if request.project.is_activated %}
+            <div class="mb-4">
+              <p class="font-medium text-white">{{ request.project.title }}</p>
+              <p class="text-sm text-slate-400">{{ request.project.description|truncatewords:20 }}</p>
+            </div>
+            <div class="space-y-2">
+              <a href="{{ items_create_url }}" class="block p-3 rounded-lg bg-emerald-900/20 text-emerald-300 ring-1 ring-inset ring-emerald-400/30 hover:bg-emerald-900/30">
+                <div class="flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                  Add New Item
+                </div>
+              </a>
+              <a href="{{ items_list_url }}" class="block p-3 rounded-lg hover:bg-slate-800/60">View Items</a>
+              <a href="{{ deactivate_project_url }}" class="block p-3 rounded-lg text-slate-400 hover:bg-slate-800/60">Deactivate Project</a>
+            </div>
+          {% else %}
+            <p class="text-slate-400">No active project. Select a project to get started.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="card">
+        <div class="card-body">
+          <h3 class="text-xl font-semibold text-white mb-2">Quick Links</h3>
+          <div class="space-y-2">
+            <a href="{% url 'projects:create' %}" class="block p-3 rounded-lg hover:bg-slate-800/60">Create New Project</a>
+            <a href="{% url 'projects:list' %}" class="block p-3 rounded-lg hover:bg-slate-800/60">View All Projects</a>
+            <a href="{{ about_url }}" class="block p-3 rounded-lg hover:bg-slate-800/60">About Content Engine</a>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 {% endif %}
 {% endblock %}

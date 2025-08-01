@@ -1,7 +1,7 @@
 import s3
 import pathlib
 import mimetypes
-from cfehome.env import config
+from yorko-home.env import config
 # from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required as login_required
 from django.http import QueryDict, HttpResponse, JsonResponse, StreamingHttpResponse
@@ -15,7 +15,7 @@ from django.views.decorators.cache import cache_control
 
 from django_htmx.http import HttpResponseClientRedirect
 
-from cfehome import http
+from yorko-home import http
 
 from . import forms
 from .models import Item

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from cfehome.utils.generators import unique_slugify
+from yorko-home.utils.generators import unique_slugify
 from . import validators
 User = settings.AUTH_USER_MODEL
 

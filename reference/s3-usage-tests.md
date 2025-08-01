@@ -8,7 +8,7 @@ python manage.py shell
 ```python
 from pprint import pprint
 import s3
-from cfehome.env import config
+from yorko-home.env import config
 
 
 AWS_ACCESS_KEY_ID=config("AWS_ACCESS_KEY_ID", default=None)
