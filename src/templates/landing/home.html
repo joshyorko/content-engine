@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="bg-slate-900">
-  <div class="max-w-7xl mx-auto px-4 py-16 text-center">
+<section class="py-16 text-center">
     {% if messages %}
       <div class="mb-6">
         {% for message in messages %}
@@ -17,32 +16,25 @@
       </div>
     {% endif %}
 
-    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
-      Content Engine
-    </h1>
-    <p class="mt-4 md:mt-5 text-lg md:text-xl text-slate-300 max-w-2xl mx-auto">
-      Organize and manage your content projects effortlessly. Create, collaborate, and deliver content with confidence.
-    </p>
-    <div class="mt-8 flex flex-col sm:flex-row sm:justify-center gap-3">
+    <h1 class="neon-box mx-auto text-5xl">Content Engine</h1>
+    <p class="mt-6 text-lg text-secondary">A Django + S3 project template for content workflows.</p>
+    <div class="terminal mx-auto mt-8 max-w-xl">
+        <div class="header">
+            <span class="dot red"></span>
+            <span class="dot orange"></span>
+            <span class="dot green"></span>
+        </div>
+        <pre>$ pip install content-engine\n$ python manage.py runserver\nWelcome to Content Engine!</pre>
+    </div>
+    <div class="mt-10 flex flex-col sm:flex-row sm:justify-center gap-3">
       {% if not request.user.is_authenticated %}
-        <a href="{% url 'login' %}" class="btn btn-primary">
-          Sign In
-          <svg class="w-3.5 h-3.5 ml-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-          </svg>
-        </a>
-        <a href="{% url 'signup' %}" class="btn btn-ghost">Create Account</a>
+        <a href="{% url 'login' %}" class="btn">Sign In</a>
+        <a href="{% url 'signup' %}" class="btn">Create Account</a>
       {% else %}
-        <a href="{% url 'projects:list' %}" class="btn btn-primary">
-          View Projects
-          <svg class="w-3.5 h-3.5 ml-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-          </svg>
-        </a>
-        <a href="{% url 'projects:create' %}" class="btn btn-ghost">New Project</a>
+        <a href="{% url 'projects:list' %}" class="btn">View Projects</a>
+        <a href="{% url 'projects:create' %}" class="btn">New Project</a>
       {% endif %}
     </div>
-  </div>
 </section>
 
 {% if not request.user.is_authenticated %}

@@ -5,11 +5,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="color-scheme" content="dark">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
     <title>{% block head_title %}CFE Home{% endblock %}</title>
     {% include 'head/css.html' %}
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-      class="min-h-screen bg-slate-900 text-slate-100 antialiased selection:bg-emerald-400 selection:text-slate-900">
+      class="min-h-screen flex flex-col" style="font-family: 'JetBrains Mono', monospace; background: var(--background); color: var(--text-primary);">
     {% include 'navbar/base.html' %}
     <main class="section">
         <div class="container mx-auto max-w-7xl px-4 py-6">
@@ -28,6 +34,53 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js" defer></script>
     <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
 
+    <!-- Theme toggle script -->
+    <script>
+      // Theme toggle logic
+      document.addEventListener('DOMContentLoaded', function () {
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const darkIcon = document.getElementById('theme-toggle-dark-icon');
+        const lightIcon = document.getElementById('theme-toggle-light-icon');
+        // Set initial icon
+        function updateIcons(isDark) {
+          if (isDark) {
+            darkIcon.classList.add('hidden');
+            lightIcon.classList.remove('hidden');
+          } else {
+            lightIcon.classList.add('hidden');
+            darkIcon.classList.remove('hidden');
+          }
+        }
+        function isDarkMode() {
+          return document.documentElement.classList.contains('dark');
+        }
+        // On load, set theme from localStorage or system
+        const userTheme = localStorage.getItem('theme');
+        if (userTheme === 'dark' || (!userTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+          updateIcons(true);
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+          updateIcons(false);
+        }
+        themeToggleBtn.addEventListener('click', function () {
+          const currentlyDark = isDarkMode();
+          if (currentlyDark) {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+            localStorage.setItem('theme', 'light');
+            updateIcons(false);
+          } else {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+            localStorage.setItem('theme', 'dark');
+            updateIcons(true);
+          }
+        });
+      });
+    </script>
     <script>
          document.body.addEventListener('htmx:xhr:loadstart', function () {
             document.body.classList.add('htmx-request');
@@ -35,6 +88,26 @@
 
         document.body.addEventListener('htmx:xhr:loadend', function () {
             document.body.classList.remove('htmx-request');
+        });
+
+        // Dark mode toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        
+        // Check for saved theme preference or default to dark
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            htmlElement.classList.add('light');
+        }
+        
+        themeToggle?.addEventListener('click', function() {
+            if (htmlElement.classList.contains('light')) {
+                htmlElement.classList.remove('light');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                htmlElement.classList.add('light');
+                localStorage.setItem('theme', 'light');
+            }
         });
     </script>
 </body>
