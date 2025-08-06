@@ -1,42 +1,79 @@
+/* Dark-first brand tokens */
+:root {
+  --bg: #0b0f14;
+  --panel: #0f141b;
+  --text: #e6f0ff;
+  --muted: #9fb3c8;
+  --accent-cyan: #00e5ff;
+  --accent-magenta: #ff4dd2;
+  --success: #31c48d;
+  --warn: #f7b955;
+  --error: #ff5577;
+  --focus-glow: 0 0 0 2px rgba(0,229,255,.4), 0 0 12px rgba(0,229,255,.3);
+  --radius: 2px;
+}
+
+/* Reserved for future light theme overrides */
+.dark { }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Base resets and dark defaults align with Tailwind tokens now */
 @layer base {
-    .tw-form {
-        @apply max-w-sm mx-auto;
-    }
-    .tw-form .errorlist{
-        @apply p-4 mb-2 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400;
-    }
-    .tw-form .errorlist + input{
-        @apply border-red-500 !important;
-    }
-    .tw-form .errorlist + textarea{
-        @apply border-red-500 !important;
-    }
-    .tw-form div {
-        @apply mb-5;
-    }
-    .tw-form label {
-        @apply block mb-2 text-sm font-medium text-gray-900 dark:text-white;
-    }
-    .tw-form input[type=text] {
-        @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500;
-    }
-    .tw-form textarea {
-        @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500;
-    }
-    .tw-form [type=submit] {
-        @apply text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800;
-    }
-    .tw-form-delete {
-        @apply text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 !important;
-    }
-    .tw-message-ul .error {
-        @apply p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400;
-    }
-    .tw-message-ul .success {
-        @apply p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400;
-    }
+  html, body {
+    @apply bg-slate-900 text-slate-100 antialiased;
+  }
+  .panel {
+    @apply bg-slate-900/60 border border-slate-800 rounded;
+  }
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(16,185,129,.35), 0 0 0 4px rgba(16,185,129,.25);
+  }
+
+  /* Legacy form helpers remain for templates not yet migrated */
+  .tw-form { @apply max-w-sm mx-auto; }
+  .tw-form .errorlist{ @apply p-4 mb-2 text-sm rounded-lg bg-slate-800 text-rose-300; }
+  .tw-form .errorlist + input{ @apply border-rose-500 !important; }
+  .tw-form .errorlist + textarea{ @apply border-rose-500 !important; }
+  .tw-form div { @apply mb-5; }
+  .tw-form label { @apply block mb-2 text-sm font-medium text-slate-100; }
+  .tw-form input[type=text] { @apply bg-slate-800 border border-slate-700 text-slate-100 text-sm rounded-lg focus:ring-emerald-400 focus:border-emerald-400 block w-full p-2.5; }
+  .tw-form textarea { @apply bg-slate-800 border border-slate-700 text-slate-100 text-sm rounded-lg focus:ring-emerald-400 focus:border-emerald-400 block w-full p-2.5; }
+  .tw-form [type=submit] { @apply text-slate-900 bg-emerald-400 hover:bg-emerald-500 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center; }
+  .tw-form-delete { @apply text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center !important; }
+  .tw-message-ul .error { @apply p-4 mb-4 text-sm rounded-lg bg-rose-900/20 text-rose-300 ring-1 ring-inset ring-rose-400/30; }
+  .tw-message-ul .success { @apply p-4 mb-4 text-sm rounded-lg bg-emerald-900/20 text-emerald-300 ring-1 ring-inset ring-emerald-400/30; }
+}
+
+/* Component layer for buttons, cards, sections, nav links */
+@layer components {
+  .btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-0; }
+  .btn-sm { @apply px-3 py-1.5 text-sm; }
+  .btn-lg { @apply px-5 py-3 text-base; }
+  .btn-primary { @apply bg-emerald-400 text-slate-900 hover:bg-emerald-500; }
+  .btn-ghost { @apply bg-transparent text-slate-200 ring-1 ring-inset ring-slate-700 hover:bg-slate-800/60; }
+
+  .card { @apply rounded-lg bg-slate-900/60 ring-1 ring-inset ring-slate-800; }
+  .card-header { @apply flex items-center mb-3 border-b border-slate-800 pb-3 px-6 pt-5; }
+  .card-body { @apply px-6 pb-6; }
+
+  .section { @apply w-full; }
+  .container-prose { @apply max-w-3xl mx-auto; }
+
+  .label { @apply text-sm text-slate-300 mb-1; }
+  .input { @apply w-full rounded-md bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/60; }
+  .select { @apply input; }
+  .badge { @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs bg-slate-800 text-slate-300 ring-1 ring-slate-700; }
+
+  .nav-link { @apply text-slate-300 hover:text-white transition; }
+  .nav-link-active { @apply text-white; }
+}
+
+@layer utilities {
+  .htmx-request .show-while-loading { display: block }
+  .htmx-request .hide-while-loading { display: none }
+  .show-while-loading { display: none }
 }

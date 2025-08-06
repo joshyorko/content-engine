@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark h-full">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,13 +8,22 @@
     <title>{% block head_title %}CFE Home{% endblock %}</title>
     {% include 'head/css.html' %}
 </head>
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    <div>
-        {% include 'navbar/base.html' %}
-        <div class="max-w-screen-xl mx-auto p-4">
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      class="min-h-screen bg-slate-900 text-slate-100 antialiased selection:bg-emerald-400 selection:text-slate-900">
+    {% include 'navbar/base.html' %}
+    <main class="section">
+        <div class="container mx-auto max-w-7xl px-4 py-6">
+            <div id="toasts" aria-live="polite" class="sr-only"></div>
             {% include 'head/messages.html' %}
             {% block content %}{% endblock %}
         </div>
+    </main>
+    <div id="statusbar" class="fixed bottom-0 left-0 right-0 h-10 flex items-center px-4 text-xs border-t border-slate-800 bg-slate-900/90 backdrop-blur">
+        <span class="grow">Project: {% if request.session.project_handle %}{{ request.session.project_handle }}{% else %}None{% endif %}</span>
+        <span id="net-status" class="text-slate-400">
+            <span class="hide-while-loading">Idle</span>
+            <span class="show-while-loading ml-2 text-slate-400">Loading…</span>
+        </span>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js" defer></script>
     <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>

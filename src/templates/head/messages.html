@@ -1,7 +1,15 @@
 {% if messages %}
-<ul class="tw-message-ul">
+  <div id="server-messages" class="space-y-2" role="region" aria-live="polite">
     {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% if message.tags == 'success' %}
+        <div class="rounded-md px-4 py-2 text-sm bg-emerald-900/20 text-emerald-300 ring-1 ring-inset ring-emerald-400/30" role="status">{{ message }}</div>
+      {% elif message.tags == 'error' %}
+        <div class="rounded-md px-4 py-2 text-sm bg-rose-900/20 text-rose-300 ring-1 ring-inset ring-rose-400/30" role="alert">{{ message }}</div>
+      {% elif message.tags == 'warning' %}
+        <div class="rounded-md px-4 py-2 text-sm bg-amber-900/20 text-amber-300 ring-1 ring-inset ring-amber-400/30" role="alert">{{ message }}</div>
+      {% else %}
+        <div class="rounded-md px-4 py-2 text-sm bg-slate-800/60 text-slate-300 ring-1 ring-inset ring-slate-700/60" role="status">{{ message }}</div>
+      {% endif %}
     {% endfor %}
-</ul>
+  </div>
 {% endif %}
