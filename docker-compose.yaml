@@ -9,7 +9,7 @@ services:
       - POSTGRESQL_PASSWORD=mypassword
       - POSTGRESQL_DATABASE=jaws_db
     ports:
-      - "5432:5432"
+      - "5432"
     volumes:
       - jaws_db_data:/var/lib/postgresql/data
     networks:
@@ -38,7 +38,7 @@ services:
     volumes:
       - .:/usr/src/app
     ports:
-      - "8000:8000"
+      - "8000"
     depends_on:
       - jaws_db
     networks:
@@ -48,8 +48,8 @@ services:
     image: minio/minio:latest
     restart: unless-stopped
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000"
+      - "9001"
     volumes:
       - minio-data:/data
     environment:
