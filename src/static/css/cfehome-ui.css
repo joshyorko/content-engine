@@ -1203,6 +1203,43 @@ input:checked + .toggle-bg {
   color: rgb(49 196 141 / var(--tw-text-opacity));
 }
 
+/*
+  Dark mode form controls override
+  Fixes unreadable input text on white backgrounds when the page text color is light.
+  Applies a dark background and light text for inputs, selects, and textareas when .dark is present on <html>.
+*/
+.dark [type='text'],
+.dark [type='email'],
+.dark [type='url'],
+.dark [type='password'],
+.dark [type='number'],
+.dark [type='date'],
+.dark [type='datetime-local'],
+.dark [type='month'],
+.dark [type='search'],
+.dark [type='tel'],
+.dark [type='time'],
+.dark [type='week'],
+.dark select,
+.dark textarea {
+  background-color: #1F2937; /* slate-800 */
+  border-color: #374151;      /* slate-700 */
+  color: #F3F4F6;             /* gray-100 */
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #9CA3AF; /* gray-400 */
+  opacity: 1;
+}
+
+/* Dark mode checkboxes/radios to match darker surfaces */
+.dark [type='checkbox'],
+.dark [type='radio'] {
+  background-color: #1F2937; /* slate-800 */
+  border-color: #4B5563;     /* gray-600 */
+}
+
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
