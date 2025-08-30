@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 # import os
 from .env import config
 from pathlib import Path
+from typing import List
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,6 +29,25 @@ SECRET_KEY = config("DJANGO_SECRET_KEY", default=None, cast=str)
 DEBUG = config("DJANGO_DEBUG", default=False, cast=bool) # twingate
 
 ALLOWED_HOSTS = ["*"]
+
+# CSRF trusted origins
+# Allow configuration via env var and include known deployed domains
+# Example env: CSRF_TRUSTED_ORIGINS="https://content-engine.joshyorko.com,https://*.joshyorko.com"
+def _csv_list(value: str) -> List[str]:
+    if not value:
+        return []
+    return [v.strip() for v in value.split(",") if v.strip()]
+
+CSRF_TRUSTED_ORIGINS: List[str] = _csv_list(
+    str(config("CSRF_TRUSTED_ORIGINS", default=""))
+)
+# Add explicit defaults for our known domains (idempotent)
+for _origin in [
+    "https://content-engine.joshyorko.com",
+    "https://*.joshyorko.com",
+]:
+    if _origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_origin)
 
 # Authentication settings
 LOGIN_REDIRECT_URL = 'home'

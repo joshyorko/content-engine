@@ -1,3 +1,16 @@
+## Local Development
+
+4. Start the app (Docker or local):
+
+## CSRF trusted origins
+
+For deployments behind HTTPS, ensure your site's origins are included in Django's CSRF_TRUSTED_ORIGINS.
+
+You can set this via environment variable (comma-separated):
+
+CSRF_TRUSTED_ORIGINS="https://content-engine.joshyorko.com,https://*.joshyorko.com"
+
+The settings also include these two values by default, so if you deploy on the above domain(s), no extra configuration is needed. If you deploy elsewhere, add your domain(s) accordingly.
 
 # Content Engine with Django, Kubernetes, TailwindCSS, Twingate & More
 
