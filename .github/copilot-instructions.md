@@ -4,7 +4,7 @@ Goal
 - Help AI coding agents make correct, quick changes in this Django + HTMX + S3 project. Keep edits small, use existing patterns, and validate by running locally.
 
 Architecture overview
-- Monolith Django app in `src/` with apps: `projects`, `items`, `landing`, site package `yorkohome`.
+- Monolith Django app in `src/` with apps: `projects`, `items`, `landing`, site package `cfehome`.
 - Storage is S3-compatible (MinIO in dev). App writes and reads via a thin wrapper `s3.S3Client` using boto3 and presigned URLs.
 - Users work within an active Project context (see `projects.middleware.ProjectMiddleware`). Most views require an activated project in `request.project` and use project-specific S3 prefixes: `Project.get_prefix()` and `Item.get_prefix()`.
 - HTML rendered server-side with HTMX partials for dynamic fragments. Templates live in `src/templates/...` with `snippets/` folders for HTMX responses.
@@ -12,8 +12,8 @@ Architecture overview
 - Deployment is container-first. Local stack provided with docker-compose and MinIO; Postgres via bitnami image. Gunicorn runs the app in containers.
 
 Key files and directories
-- `src/yorkohome/settings.py`: env-driven settings (python-decouple). `DATABASE_URL` switches DB to Postgres when present; default is SQLite. WhiteNoise configured via `STORAGES`.
-- `src/yorkohome/env.py`: loads `.env` from `src/.env` or repo root. Set ENV_FILE to override.
+- `src/cfehome/settings.py`: env-driven settings (python-decouple). `DATABASE_URL` switches DB to Postgres when present; default is SQLite. WhiteNoise configured via `STORAGES`.
+- `src/cfehome/env.py`: loads `.env` from `src/.env` or repo root. Set ENV_FILE to override.
 - `src/projects/middleware.py`: attaches `request.project` from session/cache. Use `@project_required` (in `projects.decorators`) for view guards.
 - `src/projects/cache.py` + `src/projects/context_processors.py`: cache-backed project lists for navbar.
 - `src/items/models.py`: item lifecycle and S3 key prefixing. Status auto-tracking via `_status` and `status_changed_at` in `save()`.
@@ -24,7 +24,7 @@ Key files and directories
 
 Local development
 - Python requirements: see `src/requirements.txt` (Python 3.11).
-- Frontend: `npm run dev` builds Tailwind from `src/static/tw/tailwind-input.css` to `src/static/css/yorkohome-ui.css` (watch mode).
+- Frontend: `npm run dev` builds Tailwind from `src/static/tw/tailwind-input.css` to `src/static/css/cfehome-ui.css` (watch mode).
 - Quick start with docker compose (recommended):
   - Prereqs: create `.env` in repo root or `src/` with keys: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=1`, `DATABASE_URL=postgres://myuser:mypassword@jaws_db:5432/jaws_db`, `AWS_ACCESS_KEY_ID=admin`, `AWS_SECRET_ACCESS_KEY=Pa22word22`, `AWS_BUCKET_NAME=my-content-engine`, `AWS_ENDPOINT_URL=http://minio:9000`.
   - Run: `docker compose up --build` then open http://localhost:8000. MinIO console at http://localhost:9001 (admin/Pa22word22).
@@ -34,7 +34,7 @@ Common patterns and conventions
 - Project context: Most item/project views assume `request.project` is set by activating a project via `projects.views.activate_project_view`; navbar helpers read from cache. When adding new views that operate on items/files, always guard with `@project_required` and restrict queries using `project=request.project`.
 - S3 keying: Use `Project.get_prefix()` and `Item.get_prefix()` to build keys. Do not invent new key layouts. Trailing slash matters; pass `trailing_slash=False` only when forming object keys without a directory.
 - S3 access: Construct clients via `s3.S3Client(...).client` using envs `AWS_*`. For file streaming to clients, follow `items.views.serve_s3_file` (StreamingHttpResponse, correct Content-Type, and Cache-Control). For uploads from browser, generate presigned `put_object` URLs in a POST HTMX handler and let the client PUT directly.
-- HTMX responses: If `request.htmx`, render a `snippets/` template variant; otherwise redirect or render the full page. Use `yorkohome.http.render_refresh_list_view` to trigger htmx table refresh after create/delete.
+- HTMX responses: If `request.htmx`, render a `snippets/` template variant; otherwise redirect or render the full page. Use `cfehome.http.render_refresh_list_view` to trigger htmx table refresh after create/delete.
 - Status updates: Inline edits use PATCH via HTMX; see `item_detail_inline_update_view` for parsing with `QueryDict` and validating with `ItemPatchForm`.
 - Caching: Use `django.core.cache.cache`; keep cache keys consistent with existing patterns like `_user_project_cache_{username}` and `_project_handle_cache_{handle}`.
 
